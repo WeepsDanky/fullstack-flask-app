@@ -13,7 +13,7 @@ interface UserInterfaceProps {
 }
 
 const UserInterface: React.FC<UserInterfaceProps> = ({ backendName }) => {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+  const [apiUrl, setApiUrl] = useState('');
   const [users, setUsers] = useState<User[]>([]);
   const [newUser, setNewUser] = useState({ name: '', email: '' });
   const [updateUser, setUpdateUser] = useState({ id: '', name: '', email: '' });
@@ -29,8 +29,35 @@ const UserInterface: React.FC<UserInterfaceProps> = ({ backendName }) => {
   const bgColor = backgroundColors[backendName as keyof typeof backgroundColors] || 'bg-gray-200';
   const btnColor = buttonColors[backendName as keyof typeof buttonColors] || 'bg-gray-500 hover:bg-gray-600';
 
-  // Fetch users
+  // First, fetch the API URL from the config endpoint
   useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        // Always use the config endpoint to get the API URL
+        const response = await fetch('/api/config');
+        const config = await response.json();
+        if (config.apiUrl) {
+          setApiUrl(config.apiUrl);
+          console.log('API URL set from config endpoint:', config.apiUrl);
+        } else {
+          throw new Error('API URL not found in config response');
+        }
+      } catch (error) {
+        console.error('Error fetching config:', error);
+        // Fallback to a default value if the config endpoint fails
+        const fallbackUrl = 'http://localhost:4000';
+        console.log('Using fallback API URL:', fallbackUrl);
+        setApiUrl(fallbackUrl);
+      }
+    };
+
+    fetchConfig();
+  }, []);
+
+  // Fetch users once we have the API URL
+  useEffect(() => {
+    if (!apiUrl) return; // Skip if apiUrl is not yet available
+    
     const fetchData = async () => {
       try {
         const response = await axios.get(`${apiUrl}/api/${backendName}/users`);

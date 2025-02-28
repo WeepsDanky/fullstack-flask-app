@@ -17,7 +17,7 @@ class User(db.Model):
   def json(self):
     return {'id': self.id,'name': self.name, 'email': self.email}
   
-db.create_all()
+db.create_all() 
 
 # create a test route
 @app.route('/test', methods=['GET'])
@@ -90,3 +90,6 @@ def delete_user(id):
     return make_response(jsonify({'message': 'user not found'}), 404) 
   except Exception as e:
     return make_response(jsonify({'message': 'error deleting user', 'error': str(e)}), 500)   
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=4000, debug=True)

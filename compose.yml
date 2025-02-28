@@ -2,21 +2,21 @@ services:
   #nextjs service
   nextapp:
     container_name: nextapp
-    image: nextapp:1.0.0
+    image: nextapp:1.0.3
     build:
       context: ./frontend
       dockerfile: next.dockerfile
     ports:
       - 3000:3000
     environment:
-    - NEXT_PUBLIC_API_URL=http://localhost:4000
+    - API_URL=http://localhost:4000
     depends_on:
       - flaskapp
 
   # flask service
   flaskapp:
     container_name: flaskapp
-    image: flaskapp:1.0.0
+    image: flaskapp:1.0.3
     build:
       context: ./backend
       dockerfile: flask.dockerfile
@@ -39,6 +39,18 @@ services:
       - 5432:5432
     volumes:
       - pgdata:/var/lib/postgresql/data
+
+# pgAdmin service
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - 5050:80
+    depends_on:
+      - db
 
 volumes:
   pgdata: {}
